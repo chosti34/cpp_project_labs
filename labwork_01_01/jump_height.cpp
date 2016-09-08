@@ -1,19 +1,16 @@
 #include "stdafx.h"
 
-// This program takes max jump height from input and prints
-// jump height for every time point with step 0.1 seconds.
-// Program should print all time points when height is min and max.
-//
-// TODO: Fix all warnings on high warning level (/W4, -Wall -Wextra).
-// TODO: Rename variables and split to several functions,
-// see also https://ps-group.github.io/sfml/coding_conventions.html
-// TODO: fix negative height values, fix heigh values higher than max height.
+float calculateDistance(float time, float startingSpeed, float acceleration)
+{
+    return (startingSpeed * time) - (0.5f * (acceleration * time * time));
+}
 
 int main()
 {
-    const float g = 9.8f;
+    const float g = 9.80665f;
 
-    float maxHeight, timeOfMaxHeight;
+    float currentHeight, maxHeight, timeOfMaxHeight, startingSpeed;
+    bool isMaxHeight;
 
     printf("Enter jump height, please: ");
 
@@ -23,33 +20,28 @@ int main()
         exit(1);
     }
 
-    // T - time point when height is at maximum.
-    // t - current time point
-    // v(t) == v0 - g * t
-    // v0 = g * T
-    // s(t) == v0 * t - 0.5 * g * t * t
+    timeOfMaxHeight = sqrt((2.0f * maxHeight) / g);
+    startingSpeed = g * timeOfMaxHeight;
 
-    timeOfMaxHeight = sqrt(maxHeight * 2 / g);
     printf("Time when height has it's maximum value = %f\n", timeOfMaxHeight);
 
-    bool flag = false;
-    for (float time = 0; time < timeOfMaxHeight * 2; time += 0.1f)
+    isMaxHeight = false;
+
+    for (float time = 0; time < (2.0f * timeOfMaxHeight); time += 0.1f)
     {
-        if (time > timeOfMaxHeight && !flag)
+        if ((time > timeOfMaxHeight) && (!isMaxHeight))
         {
-            flag = true;
-            float startingSpeed = g * timeOfMaxHeight;
-            float currentHeight = (startingSpeed * timeOfMaxHeight) - (0.5f * g * timeOfMaxHeight * timeOfMaxHeight);
+            isMaxHeight = true;
+
+            currentHeight = calculateDistance(timeOfMaxHeight, startingSpeed, g);
             printf("time = %f, height = %f\n", timeOfMaxHeight, currentHeight);
         }
 
-        float startingSpeed = g * timeOfMaxHeight;
-        float currentHeight = (startingSpeed * time) - (0.5f * g * time * time);
+        currentHeight = calculateDistance(time, startingSpeed, g);
         printf("time = %f, height = %f\n", time, currentHeight);
     }
 
-    float startingSpeed = g * timeOfMaxHeight;
-    float currentHeight = (startingSpeed * (2 * timeOfMaxHeight)) - 0.5f * g * (timeOfMaxHeight * 2) * (timeOfMaxHeight * 2);
+    currentHeight = calculateDistance(2.0f * timeOfMaxHeight, startingSpeed, g);
     printf("time = %f, height = %f\n", 2 * timeOfMaxHeight, currentHeight);
 
     return 0;

@@ -7,7 +7,7 @@ float calculateDistance(float time, float startingSpeed, float acceleration)
 
 int main()
 {
-    const float g = 9.80665f;
+    const float g = 9.81f;
 
     float currentHeight, maxHeight, timeOfMaxHeight, startingSpeed;
     bool isMaxHeight;

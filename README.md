@@ -1,2 +1,2 @@
 # project
-repository for cpp game project labs
+repository for c++ game project labs

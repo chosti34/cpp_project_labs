@@ -15,7 +15,21 @@ struct Circle
     int y = 0;
 };
 
-void initializeClockDots(RenderWindow &window, CircleShape dot[60])
+struct Clocks
+{
+    const int mainCircleRadius = 250;
+    const int centerCircleRadius = 10;
+
+    CircleShape dot[60];
+    CircleShape mainCircle;
+    CircleShape centerCircle;
+
+    RectangleShape hourHand;
+    RectangleShape minuteHand;
+    RectangleShape secondsHand;
+};
+
+void InitializeClockDots(RenderWindow &window, CircleShape dot[60])
 {
     Circle clock;
 
@@ -41,7 +55,7 @@ void initializeClockDots(RenderWindow &window, CircleShape dot[60])
     }
 }
 
-void processClockCircles(RenderWindow &window, Vector2f &windowCenter, CircleShape &mainCircle, CircleShape &centerCircle)
+void ProcessClockCircles(RenderWindow &window, Vector2f &windowCenter, CircleShape &mainCircle, CircleShape &centerCircle)
 {
     const int clockCircleThickness = 2;
 
@@ -57,7 +71,7 @@ void processClockCircles(RenderWindow &window, Vector2f &windowCenter, CircleSha
     centerCircle.setPosition(windowCenter);
 }
 
-void processClockHands(Vector2f &windowCenter, RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
+void ProcessClockHands(Vector2f &windowCenter, RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
 {
     hourHand.setFillColor(Color::Black);
     minuteHand.setFillColor(Color::Black);
@@ -72,7 +86,7 @@ void processClockHands(Vector2f &windowCenter, RectangleShape &hourHand, Rectang
     secondsHand.setPosition(windowCenter);
 }
 
-void setTimeForClockHands(RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
+void SetTimeForClockHands(RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
 {
     std::time_t currentTime = std::time(NULL);
     struct tm *ptm = localtime(&currentTime);
@@ -82,7 +96,7 @@ void setTimeForClockHands(RectangleShape &hourHand, RectangleShape &minuteHand, 
     secondsHand.setRotation(ptm->tm_sec * 6);
 }
 
-void processClockDigits(RenderWindow &window)
+void ProcessClockDigits(RenderWindow &window)
 {
     Circle clock;
     int charSize = 16;
@@ -99,7 +113,7 @@ void processClockDigits(RenderWindow &window)
     text.setFont(font);
     text.setCharacterSize(charSize);
     text.setColor(Color::Black);
-  
+
     int digit = 12;
 
     str = std::to_string(digit);
@@ -131,7 +145,7 @@ void processClockDigits(RenderWindow &window)
     }
 }
 
-void processEvents(RenderWindow &window)
+void ProcessEvents(RenderWindow &window)
 {
     Event event;
 
@@ -144,65 +158,75 @@ void processEvents(RenderWindow &window)
     }
 }
 
+void DrawClocks(RenderWindow &window, Clocks &clocks)
+{
+    window.draw(clocks.mainCircle);
+    window.draw(clocks.hourHand);
+    window.draw(clocks.minuteHand);
+    window.draw(clocks.secondsHand);
+    window.draw(clocks.centerCircle);
+    ProcessClockDigits(window);
+
+    for (int i = 0; i < 60; ++i)
+    {
+        window.draw(clocks.dot[i]);
+    }
+}
+
+void InitializeClocks(RenderWindow &window, Clocks &clocks)
+{
+    const int mainCircleRadius = 250;
+    const int centerCircleRadius = 10;
+
+    Vector2f windowCenter = Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+
+    InitializeClockDots(window, clocks.dot);
+
+    clocks.mainCircle.setRadius(mainCircleRadius);
+    clocks.centerCircle.setRadius(centerCircleRadius);
+    ProcessClockCircles(window, windowCenter, clocks.mainCircle, clocks.centerCircle);
+
+    clocks.hourHand.setSize(Vector2f(5, 180));
+    clocks.minuteHand.setSize(Vector2f(3, 220));
+    clocks.secondsHand.setSize(Vector2f(2, 230));
+    ProcessClockHands(windowCenter, clocks.hourHand, clocks.minuteHand, clocks.secondsHand);
+}
+
+void ApplicationMainLoop(RenderWindow &window, Clocks &clocks)
+{
+    while (window.isOpen())
+    {
+        ProcessEvents(window);
+        SetTimeForClockHands(clocks.hourHand, clocks.minuteHand, clocks.secondsHand);
+
+        window.clear(Color::White);
+        DrawClocks(window, clocks);
+        window.display();
+    }
+}
+
 int main()
 {
     const int screenWidth = 800;
     const int screenHeight = 600;
-
-    const int clockCircleRadius = 250;
-
-    int x = 0;
-    int y = 0;
 
     sf::ContextSettings settings;
     settings.antialiasingLevel = 8;
 
     RenderWindow window(VideoMode(screenWidth, screenHeight), "SFML Analog Clock", Style::Close, settings);
 
-    Vector2f windowCenter = Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
-
-    CircleShape dot[60];
-    initializeClockDots(window, dot);
-
-    CircleShape clockCircle(clockCircleRadius);
-    CircleShape centerCircle(10);
-    processClockCircles(window, windowCenter, clockCircle, centerCircle);
-
-    RectangleShape hourHand(Vector2f(5, 180));
-    RectangleShape minuteHand(Vector2f(3, 220));
-    RectangleShape secondsHand(Vector2f(2, 230));
-    processClockHands(windowCenter, hourHand, minuteHand, secondsHand);
+    Clocks clocks;
+    InitializeClocks(window, clocks);
 
     Music clockTick;
     if (!clockTick.openFromFile("resources/sounds/clock-1.wav"))
     {
-        return EXIT_FAILURE;
+        exit(EXIT_FAILURE);
     }
     clockTick.setLoop(true);
     clockTick.play();
 
-    while (window.isOpen())
-    {
-        processEvents(window);
-
-        setTimeForClockHands(hourHand, minuteHand, secondsHand);
-
-        window.clear(Color::White);
-
-        window.draw(clockCircle);
-        window.draw(hourHand);
-        window.draw(minuteHand);
-        window.draw(secondsHand);
-        window.draw(centerCircle);
-        processClockDigits(window);
-
-        for (int i = 0; i < 60; ++i)
-        {
-            window.draw(dot[i]);
-        }
-
-        window.display();
-    }
+    ApplicationMainLoop(window, clocks);
 
     return EXIT_SUCCESS;
 }

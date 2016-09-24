@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include <ctime>
 #include <cmath>
 
@@ -8,19 +10,18 @@ using namespace sf;
 
 struct Circle
 {
-    const int radius = 250;
-    const float PI = 3.1415927;
-    float angle = 0.0;
-    int x = 0;
-    int y = 0;
+    static const int radius = 250;
+
+    Vector2f point;
 };
 
 struct Clocks
 {
-    const int mainCircleRadius = 250;
-    const int centerCircleRadius = 10;
+    static const int mainCircleRadius = 250;
+    static const int centerCircleRadius = 10;
+    static const int amountOfDots = 60;
 
-    CircleShape dot[60];
+    CircleShape dot[amountOfDots];
     CircleShape mainCircle;
     CircleShape centerCircle;
 
@@ -29,14 +30,24 @@ struct Clocks
     RectangleShape secondsHand;
 };
 
+struct Files
+{
+    Music clockTick;
+    Font font;
+};
+
 void InitializeClockDots(RenderWindow &window, CircleShape dot[60])
 {
-    Circle clock;
+    const int amountOfDots = 60;
+    const int dotPositionOffset = 10;
 
-    for (int i = 0; i < 60; ++i)
+    Circle clock;
+    float angle = 0.f;
+
+    for (int i = 0; i < amountOfDots; ++i)
     {
-        clock.x = (clock.radius - 10) * cos(clock.angle);
-        clock.y = (clock.radius - 10) * sin(clock.angle);
+        clock.point.x = (clock.radius - dotPositionOffset) * cos(angle);
+        clock.point.y = (clock.radius - dotPositionOffset) * sin(angle);
 
         if ((i % 5) == 0)
         {
@@ -49,29 +60,30 @@ void InitializeClockDots(RenderWindow &window, CircleShape dot[60])
 
         dot[i].setFillColor(Color::Black);
         dot[i].setOrigin(dot[i].getGlobalBounds().width / 2, dot[i].getGlobalBounds().height / 2);
-        dot[i].setPosition(clock.x + window.getSize().x / 2, clock.y + window.getSize().y / 2);
+        dot[i].setPosition(clock.point.x + window.getSize().x / 2, clock.point.y + window.getSize().y / 2);
 
-        clock.angle = clock.angle + ((2 * clock.PI) / 60);
+        angle += + ((2 * M_PI) / 60);
     }
 }
 
-void ProcessClockCircles(RenderWindow &window, Vector2f &windowCenter, CircleShape &mainCircle, CircleShape &centerCircle)
+void ProcessClockCircles(RenderWindow &window, const Vector2f &windowCenter, CircleShape &mainCircle, CircleShape &centerCircle)
 {
     const int clockCircleThickness = 2;
+    const int amountOfPolygons = 100;
 
-    mainCircle.setPointCount(100);
+    mainCircle.setPointCount(amountOfPolygons);
     mainCircle.setOutlineThickness(clockCircleThickness);
     mainCircle.setOutlineColor(sf::Color::Black);
     mainCircle.setOrigin(mainCircle.getGlobalBounds().width / 2, mainCircle.getGlobalBounds().height / 2);
     mainCircle.setPosition(window.getSize().x / 2 + clockCircleThickness, window.getSize().y / 2 + clockCircleThickness);
 
-    centerCircle.setPointCount(100);
+    centerCircle.setPointCount(amountOfPolygons);
     centerCircle.setFillColor(sf::Color::Red);
     centerCircle.setOrigin(centerCircle.getGlobalBounds().width / 2, centerCircle.getGlobalBounds().height / 2);
     centerCircle.setPosition(windowCenter);
 }
 
-void ProcessClockHands(Vector2f &windowCenter, RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
+void ProcessClockHands(const Vector2f &windowCenter, RectangleShape &hourHand, RectangleShape &minuteHand, RectangleShape &secondsHand)
 {
     hourHand.setFillColor(Color::Black);
     minuteHand.setFillColor(Color::Black);
@@ -96,21 +108,14 @@ void SetTimeForClockHands(RectangleShape &hourHand, RectangleShape &minuteHand, 
     secondsHand.setRotation(ptm->tm_sec * 6);
 }
 
-void ProcessClockDigits(RenderWindow &window)
+void ProcessClockDigits(RenderWindow &window, Files &files)
 {
-    Circle clock;
-    int charSize = 16;
-
-    Font font;
     Text text;
     String str;
 
-    if (!font.loadFromFile("resources/fonts/arial.ttf"))
-    {
-        exit(EXIT_FAILURE);
-    }
+    const int charSize = 16;
 
-    text.setFont(font);
+    text.setFont(files.font);
     text.setCharacterSize(charSize);
     text.setColor(Color::Black);
 
@@ -119,29 +124,30 @@ void ProcessClockDigits(RenderWindow &window)
     str = std::to_string(digit);
     text.setString(str);
 
-    for (int i = 0; i < 60; ++i)
+    Circle clock;
+    float angle = 0.f;
+    const int amountOfClockDots = 60;
+    const int numbersOffset = 35;
+
+    for (int i = 0; i < amountOfClockDots; ++i)
     {
-        clock.x = (clock.radius - 35) * cos(clock.angle - clock.PI / 2);
-        clock.y = (clock.radius - 35) * sin(clock.angle - clock.PI / 2);
+        clock.point.x = (clock.radius - numbersOffset) * cos(angle - (M_PI / 2));
+        clock.point.y = (clock.radius - numbersOffset) * sin(angle - (M_PI / 2));
 
         if ((i % 5) == 0)
         {
             text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
-            text.setPosition(clock.x + window.getSize().x / 2, clock.y + window.getSize().y / 2);
+            text.setPosition(clock.point.x + window.getSize().x / 2, clock.point.y + window.getSize().y / 2);
             window.draw(text);
 
             ++digit;
-
-            if (digit == 13)
-            {
-                digit = 1;
-            }
+            digit %= 12;
 
             str = std::to_string(digit);
             text.setString(str);
         }
 
-        clock.angle = clock.angle + ((2 * clock.PI) / 60);
+        angle += ((2 * M_PI) / 60);
     }
 }
 
@@ -158,16 +164,18 @@ void ProcessEvents(RenderWindow &window)
     }
 }
 
-void DrawClocks(RenderWindow &window, Clocks &clocks)
+void DrawClocks(RenderWindow &window, Clocks &clocks, Files &files)
 {
     window.draw(clocks.mainCircle);
     window.draw(clocks.hourHand);
     window.draw(clocks.minuteHand);
     window.draw(clocks.secondsHand);
     window.draw(clocks.centerCircle);
-    ProcessClockDigits(window);
+    ProcessClockDigits(window, files);
 
-    for (int i = 0; i < 60; ++i)
+    const int amountOfClockDots = 60;
+
+    for (int i = 0; i < amountOfClockDots; ++i)
     {
         window.draw(clocks.dot[i]);
     }
@@ -178,7 +186,7 @@ void InitializeClocks(RenderWindow &window, Clocks &clocks)
     const int mainCircleRadius = 250;
     const int centerCircleRadius = 10;
 
-    Vector2f windowCenter = Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
+    const Vector2f windowCenter = Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
 
     InitializeClockDots(window, clocks.dot);
 
@@ -186,22 +194,42 @@ void InitializeClocks(RenderWindow &window, Clocks &clocks)
     clocks.centerCircle.setRadius(centerCircleRadius);
     ProcessClockCircles(window, windowCenter, clocks.mainCircle, clocks.centerCircle);
 
-    clocks.hourHand.setSize(Vector2f(5, 180));
-    clocks.minuteHand.setSize(Vector2f(3, 220));
-    clocks.secondsHand.setSize(Vector2f(2, 230));
+    const Vector2f hourHandSize = Vector2f(5, 180);
+    const Vector2f minuteHandSize = Vector2f(3, 220);
+    const Vector2f secondsHandSize = Vector2f(3, 230);
+
+    clocks.hourHand.setSize(hourHandSize);
+    clocks.minuteHand.setSize(minuteHandSize);
+    clocks.secondsHand.setSize(secondsHandSize);
     ProcessClockHands(windowCenter, clocks.hourHand, clocks.minuteHand, clocks.secondsHand);
 }
 
-void ApplicationMainLoop(RenderWindow &window, Clocks &clocks)
+void EnterApplicationMainLoop(RenderWindow &window, Clocks &clocks, Files &files)
 {
+    files.clockTick.setLoop(true);
+    files.clockTick.play();
+
     while (window.isOpen())
     {
         ProcessEvents(window);
         SetTimeForClockHands(clocks.hourHand, clocks.minuteHand, clocks.secondsHand);
 
         window.clear(Color::White);
-        DrawClocks(window, clocks);
+        DrawClocks(window, clocks, files);
         window.display();
+    }
+}
+
+void LoadFromFiles(Files &files)
+{
+    if (!files.clockTick.openFromFile("resources/sounds/clock-1.wav"))
+    {
+        exit(EXIT_FAILURE);
+    }
+
+    if (!files.font.loadFromFile("resources/fonts/arial.ttf"))
+    {
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -218,15 +246,10 @@ int main()
     Clocks clocks;
     InitializeClocks(window, clocks);
 
-    Music clockTick;
-    if (!clockTick.openFromFile("resources/sounds/clock-1.wav"))
-    {
-        exit(EXIT_FAILURE);
-    }
-    clockTick.setLoop(true);
-    clockTick.play();
+    Files files;
+    LoadFromFiles(files);
 
-    ApplicationMainLoop(window, clocks);
+    EnterApplicationMainLoop(window, clocks, files);
 
     return EXIT_SUCCESS;
 }

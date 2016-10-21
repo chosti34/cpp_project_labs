@@ -15,6 +15,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>"sfml-window-d.lib";"sfml-graphics-d.lib";"sfml-system-d.lib";"sfml-audio-d.lib";%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PropSheetPath)sdk\SFML\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

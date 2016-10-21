@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jump_height", "jump_height\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clocks", "clocks\clocks.vcxproj", "{3BA8DD78-865F-4288-8ABB-8C3CB57CC2F2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asteroids", "asteroids\asteroids.vcxproj", "{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "darkorbit", "darkorbit\darkorbit.vcxproj", "{350E8BF8-D40A-48A3-9E4C-E53291783067}"
 EndProject
 Global
@@ -35,14 +33,6 @@ Global
 		{3BA8DD78-865F-4288-8ABB-8C3CB57CC2F2}.Release|x64.Build.0 = Release|x64
 		{3BA8DD78-865F-4288-8ABB-8C3CB57CC2F2}.Release|x86.ActiveCfg = Release|Win32
 		{3BA8DD78-865F-4288-8ABB-8C3CB57CC2F2}.Release|x86.Build.0 = Release|Win32
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Debug|x64.ActiveCfg = Debug|x64
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Debug|x64.Build.0 = Debug|x64
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Debug|x86.ActiveCfg = Debug|Win32
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Debug|x86.Build.0 = Debug|Win32
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Release|x64.ActiveCfg = Release|x64
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Release|x64.Build.0 = Release|x64
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Release|x86.ActiveCfg = Release|Win32
-		{D6C8E2E4-A67B-4B4C-A2E8-7A25CFD6AB79}.Release|x86.Build.0 = Release|Win32
 		{350E8BF8-D40A-48A3-9E4C-E53291783067}.Debug|x64.ActiveCfg = Debug|x64
 		{350E8BF8-D40A-48A3-9E4C-E53291783067}.Debug|x64.Build.0 = Debug|x64
 		{350E8BF8-D40A-48A3-9E4C-E53291783067}.Debug|x86.ActiveCfg = Debug|Win32

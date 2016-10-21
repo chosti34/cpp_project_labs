@@ -5,9 +5,19 @@
     <PropSheetPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</PropSheetPath>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(PropSheetPath)sdk\SFML-2.4.0;$(IncludePath)</IncludePath>
+    <IncludePath>$(PropSheetPath)sdk\SFML\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(PropSheetPath)sdk\SFML\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(PropSheetPath)sdk\SFML\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>SFML_DYNAMIC;_UNICODE;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(PropSheetPath)sdk\SFML\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>"sfml-system-d.lib";"sfml-window-d.lib";"sfml-graphics-d.lib";"sfml-audio-d.lib";%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <BuildMacro Include="PropSheetPath">
       <Value>$(PropSheetPath)</Value>

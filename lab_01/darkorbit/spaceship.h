@@ -1,19 +1,22 @@
 #pragma once
 
-class CSpaceShip
+class SpaceShip
 {
 public:
-    sf::Texture texture;
     sf::Sprite sprite;
 
-    float dx;
-    float dy;
-
-    float x, y;
+    sf::Vector2f movement;
+    sf::Vector2f position;
 
     float angle;
 
     bool isThrust;
 
-    void Initialize();
+    void Initialize(const size_t screenWidth, const size_t screenHeight);
+    void CalculateMovementVector();
+private:
+    sf::Texture texture;
+
+    size_t gameScreenWidth;
+    size_t gameScreenHeight;
 };

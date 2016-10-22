@@ -27,6 +27,15 @@
     <ClInclude Include="spaceship.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AppController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Asteroid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -36,6 +45,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Spaceship.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AppController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Asteroid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

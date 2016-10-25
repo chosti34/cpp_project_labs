@@ -3,20 +3,28 @@
 class SpaceShip
 {
 public:
-    sf::Sprite sprite;
+    Animation animation;
+    Animation animation_stay;
+    Animation animation_go;
 
     sf::Vector2f movement;
     sf::Vector2f position;
 
     float angle;
 
+    float translationalMotionSpeed;
+    float rotationalMotionSpeed;
+
     bool isThrust;
+    bool isAlive;
 
-    void Initialize(const size_t screenWidth, const size_t screenHeight);
-    void CalculateMovementVector();
+    void Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight);
+    void Update(const float elapsedTime);
 private:
-    sf::Texture texture;
+    float screenWidth;
+    float screenHeight;
 
-    size_t gameScreenWidth;
-    size_t gameScreenHeight;
+    void HandleKeyPress(const float elapsedTime);
+    void CalculateMovementVector(const float elapsedTime);
+    void HandleOutOfScopes();
 };

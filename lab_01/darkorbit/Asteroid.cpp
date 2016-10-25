@@ -1,38 +1,59 @@
 #include "stdafx.h"
+#include "Animation.h"
 #include "Asteroid.h"
 
-void Asteroid::Initialize(int x, int y, float angle, int radius)
+Asteroid::Asteroid()
 {
-    //this->animation = rockAnimation;
-    this->position.x = x;
-    this->position.y = y;
-    this->angle = angle;
-    this->radius = radius;
+    this->speed = 50;
 
-    movement.x = rand() % 8 - 4;
-    movement.y = rand() % 8 - 4;
+    this->movement.x = (rand() % 8) - 4;
+    this->movement.y = (rand() % 8) - 4;
 }
 
-void Asteroid::Update()
+void Asteroid::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
 {
-    //this->animation.Update();
+    this->isAlive = true;
 
-    position.x += movement.x;
-    position.y += movement.y;
+    this->screenHeight = screenHeight;
+    this->screenWidth = screenWidth;
 
-    if (position.x > 1280) position.x = 0;  if (position.x < 0) position.x = 1280;
-    if (position.y > 768) position.y = 0;  if (position.y < 0) position.y = 768;
+    this->animation.SetAnimationProperties(texture, 16, 20);
+    this->animation.Initialize(0, 0, 64, 64);
+    this->animation.sprite.setScale(0.8, 0.8);
+
+    this->position.x = rand() % static_cast<int>(this->screenWidth);
+    this->position.y = rand() % static_cast<int>(this->screenHeight);
+}
+
+void Asteroid::HandleOutOfScopes()
+{
+    if (position.x > screenWidth)
+    {
+        position.x = 0;
+    }
+    else if (position.x < 0)
+    {
+        position.x = screenWidth;
+    }
+
+    if (position.y > screenHeight)
+    {
+        position.y = 0;
+    }
+    else if (position.y < 0)
+    {
+        position.y = screenHeight;
+    }
+}
+
+void Asteroid::Update(const float elapsedTime)
+{
+    animation.Update(elapsedTime);
+
+    HandleOutOfScopes();
+
+    position.x += movement.x * speed * elapsedTime;
+    position.y += movement.y * speed * elapsedTime;
 
     animation.sprite.setPosition(position);
-    animation.sprite.setRotation(angle + 90);
-
-    sf::CircleShape circle(radius);
-    circle.setFillColor(sf::Color(255,0,0,170));
-    circle.setPosition(position);
-    circle.setOrigin(radius, radius);
-}
-
-void Asteroid::Draw(sf::RenderWindow &window)
-{
-    window.draw(this->animation.sprite);
 }

@@ -1,23 +1,23 @@
 #pragma once
 
-#include "AnimationController.h"
-
 class Asteroid
 {
 public:
+    Asteroid();
+
+    Animation animation;
+
+    float speed;
+    bool isAlive;
 
     sf::Vector2f position;
     sf::Vector2f movement;
 
-    float radius;
+    void Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight);
+    void Update(const float elapsedTime);
+private:
+    float screenWidth;
+    float screenHeight;
 
-    float angle;
-
-    bool isAlive;
-    std::string name;
-    AnimationController animation;
-
-    void Initialize(int x, int y, float angle, int radius);
-    void Update();
-    void Draw(sf::RenderWindow &window);
+    void HandleOutOfScopes();
 };

@@ -10,11 +10,16 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#define _USE_MATH_DEFINES
+
+#include <time.h>
+#include <math.h>
+
 #include <string>
 #include <vector>
 #include <list>
-#include <time.h>
 
+#include <SFML\Audio.hpp>
 #include <SFML\Graphics.hpp>
 
 // TODO: reference additional headers your program requires here

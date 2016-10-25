@@ -1,40 +1,66 @@
 #include "stdafx.h"
-#include "Spaceship.h"
+#include "Animation.h"
+#include "SpaceShip.h"
 
-void SpaceShip::Initialize(const size_t screenWidth, const size_t screenHeight)
+void SpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
 {
-    this->gameScreenHeight = screenHeight;
-    this->gameScreenWidth = screenWidth;
+    // pixels per second (?)
+    this->translationalMotionSpeed = 70;
+    // degrees per second (?)
+    this->rotationalMotionSpeed = 120;
 
-    texture.loadFromFile("resources/images/spaceship.png");
+    this->screenHeight = screenHeight;
+    this->screenWidth = screenWidth;
 
-    texture.setSmooth(true);
+    this->angle = 0;
+    this->isThrust = false;
+    this->isAlive = true;
 
-    sprite.setTexture(this->texture);
-    sprite.setScale(0.5, 0.5);
-    sprite.setOrigin(this->texture.getSize().x / 2, this->texture.getSize().y / 2);
+    this->movement = {0, 0};
+    this->position = {this->screenWidth / 2, this->screenHeight / 2};
 
-    // перемещаем координаты спрайта в центр экрана
-    sprite.setPosition(gameScreenWidth / 2, gameScreenHeight / 2);
+    // »нициализаци€ анимации
+    this->animation_stay.SetAnimationProperties(texture, 1, 0);
+    this->animation_stay.Initialize(0, 0, 190, 190);
+    this->animation_stay.sprite.setScale(0.5, 0.5);
 
-    movement.x = 0;
-    movement.y = 0;
+    this->animation_go.SetAnimationProperties(texture, 1, 0);
+    this->animation_go.Initialize(190, 0, 190, 210);
+    this->animation_go.sprite.setScale(0.5, 0.5);
 
-    // перемещаем координаты (еще не св€заны со спрайтом) корабл€ в центр экрана
-    position.x = gameScreenWidth / 2;
-    position.y = gameScreenHeight / 2;
-
-    angle = 0;
-
-    isThrust = false;
+    this->animation = animation_stay;
+    this->animation.sprite.setPosition(position);
 }
 
-void SpaceShip::CalculateMovementVector()
+void SpaceShip::HandleOutOfScopes()
 {
+    if (position.x > screenWidth)
+    {
+        position.x = 0;
+    }
+    else if (position.x < 0)
+    {
+        position.x = screenWidth;
+    }
+
+    if (position.y > screenHeight)
+    {
+        position.y = 0;
+    }
+    else if (position.y < 0)
+    {
+        position.y = screenHeight;
+    }
+}
+
+void SpaceShip::CalculateMovementVector(const float elapsedTime)
+{
+    // ≈сли есть осева€ нагрузка на корабль, то он его координаты измен€ютс€ в завимимости от направлени€ оси (угла если смотреть сверху)
+    // »наче корабль медленно замедл€етс€
     if (isThrust)
     {
-        movement.x += cos(angle * 3.14 / 180);
-        movement.y += sin(angle * 3.14 / 180);
+        movement.x += cos(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime;
+        movement.y += sin(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime;
     }
     else
     {
@@ -42,13 +68,53 @@ void SpaceShip::CalculateMovementVector()
         movement.y *= 0.9;
     }
 
-    int maxSpeed = 15;
+    // ≈сли скорость корабл€ выше заданной, тогда какой эффект ускорени€/замедлени€
+    float currentSpeed = sqrt((movement.x * movement.x) + (movement.y * movement.y));
 
-    float speed = sqrt((movement.x * movement.x) + (movement.y * movement.y));
+    float maxSpeed = 15;
 
-    if (speed > maxSpeed)
+    if (currentSpeed > maxSpeed)
     {
-        movement.x *= maxSpeed / speed;
-        movement.y *= maxSpeed / speed;
+        movement.x *= maxSpeed / currentSpeed;
+        movement.y *= maxSpeed / currentSpeed;
     }
+}
+
+void SpaceShip::HandleKeyPress(const float elapsedTime)
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+    {
+        angle += rotationalMotionSpeed * elapsedTime;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+    {
+        angle -= rotationalMotionSpeed * elapsedTime;
+    }
+
+    isThrust = (sf::Keyboard::isKeyPressed(sf::Keyboard::Up));
+
+    if (isThrust)
+    {
+        animation = animation_go;
+    }
+    else
+    {
+        animation = animation_stay;
+    }
+}
+
+void SpaceShip::Update(const float elapsedTime)
+{
+    HandleKeyPress(elapsedTime);
+
+    animation.Update();
+    CalculateMovementVector(elapsedTime);
+    HandleOutOfScopes();
+
+    position.x += movement.x * translationalMotionSpeed * elapsedTime;
+    position.y += movement.y * translationalMotionSpeed * elapsedTime;
+
+    animation.sprite.setPosition(position);
+    animation.sprite.setRotation(angle + 90);
 }

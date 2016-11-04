@@ -9,6 +9,7 @@ public:
 
     float speed;
     float angle;
+    float radius;
 
     bool isAlive;
 

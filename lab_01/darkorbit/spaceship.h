@@ -11,6 +11,8 @@ public:
     sf::Vector2f position;
 
     float angle;
+    float radius;
+    int score;
 
     float translationalMotionSpeed;
     float rotationalMotionSpeed;

@@ -15,6 +15,9 @@ void SpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, 
     this->angle = 0;
     this->isThrust = false;
     this->isAlive = true;
+    this->radius = 30;
+
+    this->score = 0;
 
     this->movement = {0, 0};
     this->position = {this->screenWidth / 2, this->screenHeight / 2};

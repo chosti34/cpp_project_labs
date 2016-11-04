@@ -9,6 +9,7 @@ public:
 
     float speed;
     bool isAlive;
+    float radius;
 
     sf::Vector2f position;
     sf::Vector2f movement;

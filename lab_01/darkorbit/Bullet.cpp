@@ -6,6 +6,8 @@ Bullet::Bullet()
 {
     // pixels per second
     this->speed = 1200;
+
+    this->radius = 5;
 }
 
 void Bullet::Initialize(const sf::Texture &texture, const float angle, const sf::Vector2f &shipPosition, const float screenWidth, const float screenHeight)

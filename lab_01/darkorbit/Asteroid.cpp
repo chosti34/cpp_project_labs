@@ -5,6 +5,7 @@
 Asteroid::Asteroid()
 {
     this->speed = 50;
+    this->radius = 15;
 
     this->movement.x = (rand() % 8) - 4;
     this->movement.y = (rand() % 8) - 4;

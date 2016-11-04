@@ -22,6 +22,8 @@ private:
     sf::Music music;
     sf::SoundBuffer soundBuffer;
     sf::Sound sound;
+    sf::Font font;
+    sf::Text text;
 
     sf::RenderWindow window;
 
@@ -34,4 +36,7 @@ private:
     void HandleEvents();
     void Update();
     void Render();
+    bool IsCollide(SpaceShip &ship, Asteroid &asteroid);
+    bool IsCollide(Bullet &bullet, Asteroid &asteroid);
+    void ProcessGameOver();
 };

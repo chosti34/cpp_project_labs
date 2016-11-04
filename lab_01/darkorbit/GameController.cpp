@@ -49,6 +49,13 @@ void GameController::Initialize()
     laserTexture.loadFromFile("resources/images/laser.png");
     soundBuffer.loadFromFile("resources/sounds/laser.wav");
     sound.setBuffer(soundBuffer);
+
+    // Шрифт
+    font.loadFromFile("resources/fonts/monospace.ttf");
+    text.setFillColor(sf::Color::Blue);
+    text.setFont(font);
+    text.setCharacterSize(30);
+    text.setPosition(screenWidth - 200, 40);
 }
 
 void GameController::HandleEvents()
@@ -61,13 +68,16 @@ void GameController::HandleEvents()
             window.close();
         }
 
-        if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
+        if (spaceShip.isAlive)
         {
-            sound.play();
+            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
+            {
+                sound.play();
 
-            Bullet *bullet = new Bullet;
-            bullet->Initialize(laserTexture, spaceShip.angle, spaceShip.position, screenWidth, screenHeight);
-            bullets.push_back(bullet);
+                Bullet *bullet = new Bullet;
+                bullet->Initialize(laserTexture, spaceShip.angle, spaceShip.position, screenWidth, screenHeight);
+                bullets.push_back(bullet);
+            }
         }
     }
 }
@@ -85,19 +95,9 @@ void GameController::Update()
 
     spaceShip.Update(elapsedTime);
 
+    text.setString("Score: " + std::to_string(spaceShip.score));
+
     // Обновляем хар-ки астероидов
-
-    if (asteroids.empty())
-    {
-        // YOU WIN!
-        //std::cout << "You win!" << std::endl;
-    }
-    else if (!spaceShip.isAlive)
-    {
-        // YOU FAILED!
-        //std::cout << "You failed" << std::endl;
-    }
-
     for (auto bullet = bullets.begin(); bullet != bullets.end();)
     {
         Bullet *bulletPtr = *bullet;
@@ -119,7 +119,12 @@ void GameController::Update()
         Asteroid *asteroidPtr = *asteroid;
 
         // Столкновение астероида с кораблём
-        if (spaceShip.animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
+        /*if (spaceShip.animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
+        {
+            spaceShip.isAlive = false;
+        }*/
+
+        if (IsCollide(spaceShip, *asteroidPtr))
         {
             spaceShip.isAlive = false;
         }
@@ -131,10 +136,16 @@ void GameController::Update()
             Bullet *bulletPtr = *bullet;
 
             // Столкновение пули с астероидом
-            if (bulletPtr->animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
+            /*if (bulletPtr->animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
             {
                 bulletPtr->isAlive = false;
                 asteroidPtr->isAlive = false;
+            }*/
+            if (IsCollide(*bulletPtr, *asteroidPtr))
+            {
+                bulletPtr->isAlive = false;
+                asteroidPtr->isAlive = false;
+                ++spaceShip.score;
             }
         }
 
@@ -149,18 +160,18 @@ void GameController::Update()
         }
     }
 
-    // debugging
-
-    /*std::cout << "angle: " << spaceShip.angle << std::endl;
-    std::cout << "x move: " << spaceShip.movement.x << "; ";
-    std::cout << "y move: " << spaceShip.movement.y << std::endl;
-    std::cout << "FPS: " << 1.f / elapsedTime << std::endl;*/
+    if (rand() % 150 == 0)
+    {
+        Asteroid *asteroid = new Asteroid;
+        asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
+        asteroids.push_back(asteroid);
+    }
 }
 
 void GameController::Render()
 {
-    //window.clear(sf::Color::Black);
     window.draw(background);
+
     for (auto asteroid : asteroids)
     {
         window.draw(asteroid->animation.sprite);
@@ -170,6 +181,7 @@ void GameController::Render()
         window.draw(bullet->animation.sprite);
     }
     window.draw(spaceShip.animation.sprite);
+    window.draw(text);
     window.display();
 }
 
@@ -177,8 +189,51 @@ void GameController::EnterMainLoop()
 {
     while (window.isOpen())
     {
-        HandleEvents();
-        Update();
-        Render();
+        if (spaceShip.isAlive)
+        {
+            HandleEvents();
+            Update();
+            Render();
+        }
+        else
+        {
+            HandleEvents();
+            ProcessGameOver();
+        }
     }
+}
+
+bool GameController::IsCollide(SpaceShip &ship, Asteroid &asteroid)
+{
+    int sx = ship.position.x;
+    int sy = ship.position.y;
+    int ax = asteroid.position.x;
+    int ay = asteroid.position.y;
+    int sr = ship.radius;
+    int ar = asteroid.radius;
+
+    return (ax - sx) * (ax - sx) + (ay - sy) * (ay - sy) < (sr + ar) * (sr + ar);
+}
+
+bool GameController::IsCollide(Bullet &bullet, Asteroid &asteroid)
+{
+    int bx = bullet.position.x;
+    int by = bullet.position.y;
+    int ax = asteroid.position.x;
+    int ay = asteroid.position.y;
+    int br = bullet.radius;
+    int ar = asteroid.radius;
+
+    return (ax - bx) * (ax - bx) + (ay - by) * (ay - by) < (br + ar) * (br + ar);
+}
+
+void GameController::ProcessGameOver()
+{
+    text.setString("Game Over! Score: " + std::to_string(spaceShip.score));
+    text.setCharacterSize(60);
+    text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
+    text.setPosition(screenWidth / 2, screenHeight / 2 - text.getGlobalBounds().height / 2);
+    window.draw(background);
+    window.draw(text);
+    window.display();
 }

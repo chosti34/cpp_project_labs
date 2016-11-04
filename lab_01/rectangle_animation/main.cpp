@@ -1,47 +1,47 @@
-// rectangle_animation.cpp : Defines the entry point for the console application.
-//
-
 #include "stdafx.h"
-#include "const.h"
+#include "RectangleCollection.h"
 
-void InitializeRectangles(sf::RectangleShape rectangles[5])
+void HandleEvents(sf::RenderWindow &window)
 {
-    for (size_t i = 0; i < 5; ++i)
+    sf::Event event;
+    while (window.pollEvent(event))
     {
-        rectangles[i].setFillColor(START_COLOR);
-        rectangles[i].setSize(sf::Vector2f(RECTANGLE_WIDTH, RECTANGLE_HEIGHT));
-        rectangles[i].setOrigin(RECTANGLE_WIDTH / 2, RECTANGLE_HEIGHT / 2);
-        rectangles[i].setPosition(10 + i * (RECTANGLE_WIDTH + RECTANGLE_DISTANCE) + rectangles[i].getOrigin().x, 10 + rectangles[i].getOrigin().y);
+        if (event.type == sf::Event::Closed)
+        {
+            window.close();
+        }
     }
 }
 
-void DrawRectangles(sf::RenderWindow &window, sf::RectangleShape rectangles[5])
+void Update(sf::RenderWindow &window, sf::Clock &clock, CRectangleCollection &collection)
 {
-    for (size_t i = 0; i < 5; ++i)
-    {
-        window.draw(rectangles[i]);
-    }
+    const float elapsedTime = clock.getElapsedTime().asSeconds();
+    clock.restart();
+
+    collection.Update(elapsedTime);
+    collection.ProcessOutOfScopes(sf::Vector2f(window.getSize().x, window.getSize().y));
+}
+
+void Render(sf::RenderWindow &window, CRectangleCollection &collection)
+{
+    window.clear(sf::Color::Black);
+    collection.Draw(window);
+    window.display();
 }
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Rectangle Animation");
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Rectangle Animation", sf::Style::Close);
+    sf::Clock clock;
 
-    sf::RectangleShape rectangles[5];
-    InitializeRectangles(rectangles);
+    CRectangleCollection collection;
+    collection.Initialize();
 
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        DrawRectangles(window, rectangles);
-        window.display();
+        HandleEvents(window);
+        Update(window, clock, collection);
+        Render(window, collection);
     }
 
     return 0;

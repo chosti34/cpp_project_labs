@@ -13,5 +13,6 @@
 #include <SFML\Graphics.hpp>
 
 #include <iostream>
+#include <array>
 
 // TODO: reference additional headers your program requires here

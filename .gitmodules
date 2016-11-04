@@ -1,3 +1,6 @@
 [submodule "lab_01/darkorbit/sdk/sfml"]
 	path = lab_01/darkorbit/sdk/sfml
 	url = https://github.com/chosti34/SFML.git
+[submodule "lab_01/rectangle_animation/sdk/sfml"]
+	path = lab_01/rectangle_animation/sdk/SFML
+	url = https://github.com/chosti34/SFML.git

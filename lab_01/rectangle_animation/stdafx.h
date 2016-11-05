@@ -10,9 +10,12 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#define _USE_MATH_DEFINES
+
 #include <SFML\Graphics.hpp>
 
 #include <iostream>
 #include <array>
+#include <cmath>
 
 // TODO: reference additional headers your program requires here

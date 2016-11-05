@@ -28,7 +28,7 @@ void CRectangleCollection::Draw(sf::RenderWindow &window)
     }
 }
 
-void CRectangleCollection::Update(const float elapsedTime)
+void CRectangleCollection::Update(const float elapsedTime, const sf::Vector2f &scopes)
 {
     sf::Vector2f movement;
 
@@ -42,28 +42,98 @@ void CRectangleCollection::Update(const float elapsedTime)
         movement = sf::Vector2f(0, -1);
         m_angle = 0;
     }
+    else if (m_state == State::RIGHT)
+    {
+        movement = sf::Vector2f(1, 0);
+        m_angle = 0;
+    }
+    else if (m_state == State::ROTATE_RIGHT)
+    {
+        movement = sf::Vector2f(0, 0);
+        m_angle += m_changeAngleSpeed * elapsedTime;
+        if (m_angle > 360)
+        {
+            m_angle = static_cast<float>(static_cast<int>(m_angle) % 360);
+        }
+    }
+    else if (m_state == State::LEFT_ASYNC)
+    {
+        movement = sf::Vector2f(-3, -3);
+        
+    }
 
-    ChangeCoordinates(movement, elapsedTime);
+    ProcessOutOfScopes(scopes);
+    ChangeCoordinates(movement, elapsedTime, scopes);
     ChangeColor(elapsedTime);
 }
 
-void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime)
+void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime, const sf::Vector2f &scopes)
 {
-    for (size_t i = 0; i < m_collection.size(); ++i)
+    if ((m_state == State::DOWN) || (m_state == State::UP) || (m_state == State::RIGHT))
     {
-        m_collection[i].setPosition(m_collection[i].getPosition() + movement * m_speedMovement * elapsedTime);
+        for (size_t i = 0; i < m_collection.size(); ++i)
+        {
+            m_collection[i].setPosition(m_collection[i].getPosition() + movement * m_speedMovement * elapsedTime);
+        }
+    }
+    else if (m_state == State::ROTATE_RIGHT)
+    {
+        for (size_t i = 0; i < m_collection.size(); ++i)
+        {
+            float dx = m_collection[m_collection.size() - 1].getPosition().x - m_collection[i].getPosition().x;
+            float dy = m_collection[m_collection.size() - 1].getPosition().y - m_collection[i].getPosition().y;
+            float radius = hypot(dx, dy);
+
+            m_collection[i].setPosition(
+                (scopes.x - m_width / 2 - m_leftOffset) - radius * static_cast<float>(cos(m_angle * M_PI / 180)),
+                (scopes.y - m_height / 2 - m_topOffset) - radius * static_cast<float>(sin(m_angle * M_PI / 180))
+            );
+
+            m_collection[i].setRotation(m_angle);
+        }
+    }
+    else if (m_state == State::LEFT_ASYNC)
+    {
+        if (static_cast<int>(m_collection[m_index].getPosition().y) > static_cast<int>(m_collection[0].getPosition().y))
+        {
+            m_collection[m_index].setPosition(m_collection[m_index].getPosition() + movement * m_speedMovement * elapsedTime);
+        }
+        else
+        {
+            ++m_index;
+        }
+
+        if (m_index > m_collection.size() - 1)
+        {
+            m_index = 1;
+            wasAsync = true;
+            // reinitialize collection (?)
+        }
     }
 }
 
 void CRectangleCollection::ProcessOutOfScopes(const sf::Vector2f &scopes)
 {
-    if (m_collection[0].getPosition().y + m_topOffset + m_collection[0].getOrigin().y >= scopes.y)
+    if ((m_collection[0].getPosition().y + m_topOffset + m_collection[0].getOrigin().y >= scopes.y) && (m_collection[0].getPosition().x - m_leftOffset - m_collection[0].getOrigin().x <= 0))
     {
-        m_state = State::UP;
+        m_state = State::RIGHT;
     }
     else if (m_collection[0].getPosition().y - m_topOffset - m_collection[0].getOrigin().y <= 0)
     {
-        m_state = State::DOWN;
+        // m_state = State::DOWN;
+    }
+    else if ((m_collection[m_collection.size() - 1].getPosition().y + m_topOffset + m_collection[0].getOrigin().y) && (m_collection[m_collection.size() - 1].getPosition().x + m_leftOffset + m_collection[m_collection.size() - 1].getOrigin().x >= scopes.x) && (m_state == State::RIGHT))
+    {
+        m_state = State::ROTATE_RIGHT;
+    }
+    else if ((m_state == State::ROTATE_RIGHT) && (m_angle >= 90))
+    {
+        m_angle = 0;
+        m_state = State::UP;
+    }
+    else if ((m_state == State::UP) && (m_collection[4].getPosition().y < scopes.y / 2))
+    {
+        m_state = State::LEFT_ASYNC;
     }
 }
 

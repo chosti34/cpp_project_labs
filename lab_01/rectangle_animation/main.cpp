@@ -15,11 +15,15 @@ void HandleEvents(sf::RenderWindow &window)
 
 void Update(sf::RenderWindow &window, sf::Clock &clock, CRectangleCollection &collection)
 {
-    const float elapsedTime = clock.getElapsedTime().asSeconds();
+    float elapsedTime = clock.getElapsedTime().asSeconds();
     clock.restart();
 
-    collection.Update(elapsedTime);
-    collection.ProcessOutOfScopes(sf::Vector2f(window.getSize().x, window.getSize().y));
+    if (elapsedTime > 0.1)
+    {
+        elapsedTime = 0.1;
+    }
+
+    collection.Update(elapsedTime, sf::Vector2f(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)));
 }
 
 void Render(sf::RenderWindow &window, CRectangleCollection &collection)

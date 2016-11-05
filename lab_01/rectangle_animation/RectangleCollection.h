@@ -3,7 +3,10 @@
 enum class State
 {
     UP,
-    DOWN
+    DOWN,
+    RIGHT,
+    ROTATE_RIGHT,
+    LEFT_ASYNC
 };
 
 class CRectangleCollection
@@ -13,7 +16,7 @@ public:
     ~CRectangleCollection();
     void Initialize();
     void Draw(sf::RenderWindow &window);
-    void Update(const float elapsedTime);
+    void Update(const float elapsedTime, const sf::Vector2f &scopes);
     void ProcessOutOfScopes(const sf::Vector2f &scopes);
 private:
     std::array<sf::RectangleShape, 8> m_collection;
@@ -23,10 +26,12 @@ private:
     const float m_topOffset = 10;
     const float m_rectangleDistance = 10;
     float m_angle = 0;
-    const float m_speedMovement = 150;
-    const float m_speedColorChange = 1000000;
+    float m_speedMovement = 300;
+    float m_changeAngleSpeed = 50;
     sf::Color m_color = sf::Color(0, 100, 255, 255);
     State m_state = State::DOWN;
-    void ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime);
+    size_t m_index = 1;
+    bool wasAsync = false;
+    void ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime, const sf::Vector2f &scopes);
     void ChangeColor(const float elapsedTime);
 };

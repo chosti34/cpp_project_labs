@@ -18,12 +18,17 @@ void Update(sf::RenderWindow &window, sf::Clock &clock, CRectangleCollection &co
     float elapsedTime = clock.getElapsedTime().asSeconds();
     clock.restart();
 
-    if (elapsedTime > 0.3)
+    if (elapsedTime > 0.1f)
     {
-        elapsedTime = 0.3;
+        elapsedTime = 0.1f;
     }
 
-    collection.Update(elapsedTime, sf::Vector2f(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)));
+    const float screenWidth = static_cast<float>(window.getSize().x);
+    const float screenHeight = static_cast<float>(window.getSize().y);
+
+    const sf::Vector2f screenSize(screenWidth, screenHeight);
+
+    collection.Update(elapsedTime, screenSize);
 }
 
 void Render(sf::RenderWindow &window, CRectangleCollection &collection)
@@ -35,8 +40,13 @@ void Render(sf::RenderWindow &window, CRectangleCollection &collection)
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(1280, 720), "Rectangle Animation", sf::Style::Close);
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 8;
+
+    sf::RenderWindow window(sf::VideoMode(1280, 720), "Rectangle Animation", sf::Style::Close, settings);
     sf::Clock clock;
+
+    window.setFramerateLimit(60);
 
     CRectangleCollection collection;
     collection.Initialize();

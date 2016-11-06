@@ -59,17 +59,25 @@ void CRectangleCollection::Update(const float elapsedTime, const sf::Vector2f &s
     else if (m_state == State::LEFT_ASYNC)
     {
         movement = sf::Vector2f(-3, -3);
-        
+    }
+    else if (m_state == State::LEFT_DIAG)
+    {
+        movement = sf::Vector2f(-1, -0.3);
+    }
+    else if (m_state == State::LEFT)
+    {
+        movement = sf::Vector2f(-1, 0);
     }
 
     ProcessOutOfScopes(scopes);
     ChangeCoordinates(movement, elapsedTime, scopes);
     ChangeColor(elapsedTime);
+    ChangeSize(elapsedTime);
 }
 
 void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime, const sf::Vector2f &scopes)
 {
-    if ((m_state == State::DOWN) || (m_state == State::UP) || (m_state == State::RIGHT))
+    if ((m_state == State::DOWN) || (m_state == State::UP) || (m_state == State::RIGHT) || (m_state == State::LEFT_DIAG) || (m_state == State::LEFT))
     {
         for (size_t i = 0; i < m_collection.size(); ++i)
         {
@@ -100,14 +108,14 @@ void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float
         }
         else
         {
+            m_collection[m_index].setPosition(m_collection[m_index].getPosition().x, m_collection[0].getPosition().y);
             ++m_index;
         }
 
         if (m_index > m_collection.size() - 1)
         {
             m_index = 1;
-            wasAsync = true;
-            // reinitialize collection (?)
+            m_wasAsync = true;
         }
     }
 }
@@ -118,9 +126,10 @@ void CRectangleCollection::ProcessOutOfScopes(const sf::Vector2f &scopes)
     {
         m_state = State::RIGHT;
     }
-    else if (m_collection[0].getPosition().y - m_topOffset - m_collection[0].getOrigin().y <= 0)
+    else if ((m_collection[0].getPosition().y - m_topOffset - m_collection[0].getOrigin().y <= 0) && (m_collection[m_collection.size() - 1].getPosition().x - m_leftOffset - m_collection[0].getOrigin().x <= 0) && (m_state == State::LEFT))
     {
-        // m_state = State::DOWN;
+        Initialize();
+        m_state = State::DOWN;
     }
     else if ((m_collection[m_collection.size() - 1].getPosition().y + m_topOffset + m_collection[0].getOrigin().y) && (m_collection[m_collection.size() - 1].getPosition().x + m_leftOffset + m_collection[m_collection.size() - 1].getOrigin().x >= scopes.x) && (m_state == State::RIGHT))
     {
@@ -135,21 +144,29 @@ void CRectangleCollection::ProcessOutOfScopes(const sf::Vector2f &scopes)
     {
         m_state = State::LEFT_ASYNC;
     }
+    else if (m_wasAsync)
+    {
+        m_wasAsync = false;
+        m_state = State::LEFT_DIAG;
+    }
+    else if ((m_state == State::LEFT_DIAG) && (m_collection[0].getPosition().y - m_topOffset - m_collection[0].getOrigin().y <= 0))
+    {
+        m_state = State::LEFT;
+    }
 }
 
 void CRectangleCollection::ChangeColor(const float elapsedTime)
 {
     for (size_t i = 0; i < m_collection.size(); ++i)
     {
-        if (m_state == State::DOWN)
-        {
-
-        }
-        else if (m_state == State::UP)
-        {
-
-        }
-
         m_collection[i].setFillColor(m_color);
+    }
+}
+
+void CRectangleCollection::ChangeSize(const float elapsedTime)
+{
+    for (size_t i = 0; i < m_collection.size(); ++i)
+    {
+        m_collection[i].setSize(sf::Vector2f(m_width, m_height));
     }
 }

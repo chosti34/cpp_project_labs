@@ -18,9 +18,9 @@ void Update(sf::RenderWindow &window, sf::Clock &clock, CRectangleCollection &co
     float elapsedTime = clock.getElapsedTime().asSeconds();
     clock.restart();
 
-    if (elapsedTime > 0.1)
+    if (elapsedTime > 0.3)
     {
-        elapsedTime = 0.1;
+        elapsedTime = 0.3;
     }
 
     collection.Update(elapsedTime, sf::Vector2f(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y)));

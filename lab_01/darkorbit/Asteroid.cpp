@@ -2,16 +2,16 @@
 #include "Animation.h"
 #include "Asteroid.h"
 
-Asteroid::Asteroid()
+CAsteroid::CAsteroid()
 {
     this->speed = 50;
     this->radius = 15;
 
-    this->movement.x = (rand() % 8) - 4;
-    this->movement.y = (rand() % 8) - 4;
+    this->movement.x = static_cast<float>((rand() % 8) - 4);
+    this->movement.y = static_cast<float>((rand() % 8) - 4);
 }
 
-void Asteroid::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
+void CAsteroid::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
 {
     this->isAlive = true;
 
@@ -20,13 +20,13 @@ void Asteroid::Initialize(const sf::Texture &texture, const float screenWidth, c
 
     this->animation.SetAnimationProperties(texture, 16, 20);
     this->animation.Initialize(0, 0, 64, 64);
-    this->animation.sprite.setScale(0.8, 0.8);
+    this->animation.sprite.setScale(0.8f, 0.8f);
 
-    this->position.x = rand() % static_cast<int>(this->screenWidth);
-    this->position.y = rand() % static_cast<int>(this->screenHeight);
+    this->position.x = static_cast<float>(rand() % static_cast<int>(this->screenWidth));
+    this->position.y = static_cast<float>(rand() % static_cast<int>(this->screenHeight));
 }
 
-void Asteroid::HandleOutOfScopes()
+void CAsteroid::HandleOutOfScopes()
 {
     if (position.x > screenWidth)
     {
@@ -47,7 +47,7 @@ void Asteroid::HandleOutOfScopes()
     }
 }
 
-void Asteroid::Update(const float elapsedTime)
+void CAsteroid::Update(const float elapsedTime)
 {
     animation.Update(elapsedTime);
 

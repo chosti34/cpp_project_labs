@@ -14,8 +14,6 @@ enum class State
 class CRectangleCollection
 {
 public:
-    CRectangleCollection();
-    ~CRectangleCollection();
     void Initialize();
     void Draw(sf::RenderWindow &window);
     void Update(const float elapsedTime, const sf::Vector2f &screenSize);
@@ -29,7 +27,7 @@ private:
     float m_angle = 0;
     float m_speedMovement = 300;
     float m_changeAngleSpeed = 50;
-    const float m_changeColorSpeed = 255;
+    const float m_changeColorSpeed = 500;
     const float changeSizeSpeed = 10;
     sf::Vector2f m_movement;
     sf::Color m_color = sf::Color(0, 100, 255, 255);

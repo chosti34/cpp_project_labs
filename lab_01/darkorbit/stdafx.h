@@ -15,6 +15,7 @@
 #include <time.h>
 #include <math.h>
 
+#include <iostream>
 #include <string>
 #include <vector>
 #include <list>

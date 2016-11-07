@@ -1,11 +1,11 @@
 #pragma once
 
-class SpaceShip
+class CSpaceShip
 {
 public:
-    Animation animation;
-    Animation animation_stay;
-    Animation animation_go;
+    CAnimation animation;
+    CAnimation animation_stay;
+    CAnimation animation_go;
 
     sf::Vector2f movement;
     sf::Vector2f position;

@@ -5,60 +5,77 @@
 #include "SpaceShip.h"
 #include "GameController.h"
 
-#include <iostream>
-
-GameController::GameController(const size_t screenWidth, const size_t screenHeight, const std::string &gameTitle)
+CGameController::CGameController(const float screenWidth, const float screenHeight, const std::string &gameTitle)
 {
     this->screenWidth = screenWidth;
     this->screenHeight = screenHeight;
     this->gameTitle = gameTitle;
 }
 
-void GameController::Initialize()
+void CGameController::Initialize()
 {
-    window.create(sf::VideoMode(screenWidth, screenHeight), gameTitle, sf::Style::Close);
+    window.create(sf::VideoMode(static_cast<size_t>(screenWidth), static_cast<size_t>(screenHeight)), gameTitle, sf::Style::Close);
     window.setFramerateLimit(60);
+    window.setKeyRepeatEnabled(false);
 
-    // Фон для игры
+    LoadBackground();
+    LoadMusic();
+    LoadFonts();
+
+    InitializeShip();
+    InitializeAsteroids();
+}
+
+void CGameController::LoadBackground()
+{
     backgroundTexture.loadFromFile("resources/images/background.png");
     background.setTexture(backgroundTexture);
     background.setScale(screenWidth / background.getLocalBounds().width, screenHeight / background.getLocalBounds().height);
+}
 
-    // Музыкальное сопровождение для игры
+void CGameController::LoadMusic()
+{
     music.openFromFile("resources/sounds/theme.wav");
     music.setLoop(true);
     music.play();
 
-    // Инициализиция корабля
-    spaceShipTexture.loadFromFile("resources/images/spaceship.png");
-    spaceShipTexture.setSmooth(true);
-    spaceShip.Initialize(spaceShipTexture, screenWidth, screenHeight);
-
-    // Инициализация астероидов
-    asteroidTexture.loadFromFile("resources/images/asteroid.png");
-    asteroidTexture.setSmooth(true);
-    size_t asteroidsAmount = 6;
-    for (size_t i = 0; i < asteroidsAmount; ++i)
-    {
-        Asteroid *asteroid = new Asteroid;
-        asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
-        asteroids.push_back(asteroid);
-    }
-
-    // Инициализация лазеров
     laserTexture.loadFromFile("resources/images/laser.png");
     soundBuffer.loadFromFile("resources/sounds/laser.wav");
     sound.setBuffer(soundBuffer);
-
-    // Шрифт
-    font.loadFromFile("resources/fonts/monospace.ttf");
-    text.setFillColor(sf::Color::Blue);
-    text.setFont(font);
-    text.setCharacterSize(30);
-    text.setPosition(screenWidth - 200, 40);
 }
 
-void GameController::HandleEvents()
+void CGameController::LoadFonts()
+{
+    font.loadFromFile("resources/fonts/monospace.ttf");
+    text.setFillColor(sf::Color::Green);
+    text.setFont(font);
+    text.setStyle(sf::Text::Bold);
+    text.setOutlineColor(sf::Color::Magenta);
+    text.setOutlineThickness(2);
+    text.setCharacterSize(30);
+}
+
+void CGameController::InitializeShip()
+{
+    spaceShipTexture.loadFromFile("resources/images/spaceship.png");
+    spaceShipTexture.setSmooth(true);
+    spaceShip.Initialize(spaceShipTexture, screenWidth, screenHeight);
+}
+
+void CGameController::InitializeAsteroids()
+{
+    asteroidTexture.loadFromFile("resources/images/asteroid.png");
+    asteroidTexture.setSmooth(true);
+
+    for (size_t i = 0; i < 6; ++i)
+    {
+        CAsteroid *asteroid = new CAsteroid;
+        asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
+        asteroids.push_back(asteroid);
+    }
+}
+
+void CGameController::HandleEvents()
 {
     sf::Event event;
     while (window.pollEvent(event))
@@ -67,40 +84,44 @@ void GameController::HandleEvents()
         {
             window.close();
         }
-
-        if (spaceShip.isAlive)
+        if ((spaceShip.isAlive) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
         {
-            if ((event.type == sf::Event::KeyPressed) && (event.key.code == sf::Keyboard::Space))
-            {
-                sound.play();
-
-                Bullet *bullet = new Bullet;
-                bullet->Initialize(laserTexture, spaceShip.angle, spaceShip.position, screenWidth, screenHeight);
-                bullets.push_back(bullet);
-            }
+            ShootBullet();
+        }
+        if ((!m_isPlaying) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
+        {
+            InitializeShip();
+            InitializeAsteroids();
+            m_isPlaying = true;
         }
     }
 }
 
-void GameController::Update()
+void CGameController::Update()
 {
     float elapsedTime = clock.getElapsedTime().asSeconds();
     clock.restart();
 
     if (elapsedTime > 0.1)
     {
-        // if we hold window active we need to stop the time in game (?)
-        elapsedTime = 0.1;
+        elapsedTime = 0.1f;
     }
 
     spaceShip.Update(elapsedTime);
+    UpdateBullets(elapsedTime);
+    UpdateAsteroids(elapsedTime);
 
+    text.setOrigin(text.getGlobalBounds().width, text.getGlobalBounds().height);
+    text.setCharacterSize(30);
+    text.setPosition(screenWidth - 25, 40);
     text.setString("Score: " + std::to_string(spaceShip.score));
+}
 
-    // Обновляем хар-ки астероидов
+void CGameController::UpdateBullets(const float elapsedTime)
+{
     for (auto bullet = bullets.begin(); bullet != bullets.end();)
     {
-        Bullet *bulletPtr = *bullet;
+        CBullet *bulletPtr = *bullet;
         bulletPtr->Update(elapsedTime);
 
         if (!bulletPtr->isAlive)
@@ -113,46 +134,44 @@ void GameController::Update()
             bullet++;
         }
     }
+}
 
+void CGameController::ShootBullet()
+{
+    sound.play();
+    CBullet *bullet = new CBullet;
+    bullet->Initialize(laserTexture, spaceShip.angle, spaceShip.position, screenWidth, screenHeight);
+    bullets.push_back(bullet);
+}
+
+void CGameController::UpdateAsteroids(const float elapsedTime)
+{
     for (auto asteroid = asteroids.begin(); asteroid != asteroids.end();)
     {
-        Asteroid *asteroidPtr = *asteroid;
-
-        // Столкновение астероида с кораблём
-        /*if (spaceShip.animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
+        CAsteroid *asteroidPtr = *asteroid;
+        if (IsShipCollidesWithAsteroid(spaceShip, *asteroidPtr))
         {
             spaceShip.isAlive = false;
-        }*/
-
-        if (IsCollide(spaceShip, *asteroidPtr))
-        {
-            spaceShip.isAlive = false;
+            m_isPlaying = false;
+            asteroids.clear();
+            bullets.clear();
+            break;
         }
-
         asteroidPtr->Update(elapsedTime);
-
         for (auto bullet = bullets.begin(); bullet != bullets.end(); ++bullet)
         {
-            Bullet *bulletPtr = *bullet;
-
-            // Столкновение пули с астероидом
-            /*if (bulletPtr->animation.sprite.getGlobalBounds().intersects(asteroidPtr->animation.sprite.getGlobalBounds()))
+            CBullet *bulletPtr = *bullet;
+            if (IsBulletCollidesWithAsteroid(*bulletPtr, *asteroidPtr))
             {
                 bulletPtr->isAlive = false;
                 asteroidPtr->isAlive = false;
-            }*/
-            if (IsCollide(*bulletPtr, *asteroidPtr))
-            {
-                bulletPtr->isAlive = false;
-                asteroidPtr->isAlive = false;
-                ++spaceShip.score;
             }
         }
-
         if (!asteroidPtr->isAlive)
         {
             asteroid = asteroids.erase(asteroid);
             delete asteroidPtr;
+            ++spaceShip.score;
         }
         else
         {
@@ -162,78 +181,77 @@ void GameController::Update()
 
     if (rand() % 150 == 0)
     {
-        Asteroid *asteroid = new Asteroid;
+        CAsteroid *asteroid = new CAsteroid;
         asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
         asteroids.push_back(asteroid);
     }
 }
 
-void GameController::Render()
+void CGameController::DrawAsteroids()
 {
-    window.draw(background);
-
     for (auto asteroid : asteroids)
     {
         window.draw(asteroid->animation.sprite);
     }
+}
+
+void CGameController::DrawBullets()
+{
     for (auto bullet : bullets)
     {
         window.draw(bullet->animation.sprite);
     }
+}
+
+void CGameController::Render()
+{
+    window.draw(background);
+    DrawAsteroids();
+    DrawBullets();
     window.draw(spaceShip.animation.sprite);
     window.draw(text);
     window.display();
 }
 
-void GameController::EnterMainLoop()
+void CGameController::EnterMainLoop()
 {
     while (window.isOpen())
     {
-        if (spaceShip.isAlive)
+        HandleEvents();
+
+        if (m_isPlaying)
         {
-            HandleEvents();
             Update();
             Render();
         }
         else
         {
-            HandleEvents();
-            ProcessGameOver();
+            ProcessGameEnd();
         }
     }
 }
 
-bool GameController::IsCollide(SpaceShip &ship, Asteroid &asteroid)
+void CGameController::ProcessGameEnd()
 {
-    int sx = ship.position.x;
-    int sy = ship.position.y;
-    int ax = asteroid.position.x;
-    int ay = asteroid.position.y;
-    int sr = ship.radius;
-    int ar = asteroid.radius;
-
-    return (ax - sx) * (ax - sx) + (ay - sy) * (ay - sy) < (sr + ar) * (sr + ar);
-}
-
-bool GameController::IsCollide(Bullet &bullet, Asteroid &asteroid)
-{
-    int bx = bullet.position.x;
-    int by = bullet.position.y;
-    int ax = asteroid.position.x;
-    int ay = asteroid.position.y;
-    int br = bullet.radius;
-    int ar = asteroid.radius;
-
-    return (ax - bx) * (ax - bx) + (ay - by) * (ay - by) < (br + ar) * (br + ar);
-}
-
-void GameController::ProcessGameOver()
-{
-    text.setString("Game Over! Score: " + std::to_string(spaceShip.score));
+    text.setString("Score: " + std::to_string(spaceShip.score) + "\nPress space\nto restart");
     text.setCharacterSize(60);
     text.setOrigin(text.getGlobalBounds().width / 2, text.getGlobalBounds().height / 2);
-    text.setPosition(screenWidth / 2, screenHeight / 2 - text.getGlobalBounds().height / 2);
+    text.setPosition(screenWidth / 2, screenHeight / 2 - text.getGlobalBounds().height / 2 + 50);
     window.draw(background);
     window.draw(text);
     window.display();
+}
+
+bool CGameController::IsShipCollidesWithAsteroid(CSpaceShip &ship, CAsteroid &asteroid)
+{
+    return ((asteroid.position.x - ship.position.x) * (asteroid.position.x - ship.position.x) +
+            (asteroid.position.y - ship.position.y) * (asteroid.position.y - ship.position.y) <
+            (ship.radius + asteroid.radius) * (ship.radius + asteroid.radius));
+}
+
+bool CGameController::IsBulletCollidesWithAsteroid(CBullet &bullet, CAsteroid &asteroid)
+{
+    return ((asteroid.position.x - bullet.position.x) * (asteroid.position.x - bullet.position.x) +
+            (asteroid.position.y - bullet.position.y) * (asteroid.position.y - bullet.position.y) <
+            (bullet.radius + asteroid.radius) * (bullet.radius + asteroid.radius));
 }

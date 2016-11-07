@@ -1,11 +1,11 @@
 #pragma once
 
-class Asteroid
+class CAsteroid
 {
 public:
-    Asteroid();
+    CAsteroid();
 
-    Animation animation;
+    CAnimation animation;
 
     float speed;
     bool isAlive;

@@ -1,11 +1,11 @@
 #pragma once
 
-class Bullet
+class CBullet
 {
 public:
-    Bullet();
+    CBullet();
 
-    Animation animation;
+    CAnimation animation;
 
     float speed;
     float angle;

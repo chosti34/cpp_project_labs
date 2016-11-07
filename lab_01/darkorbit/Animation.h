@@ -1,6 +1,6 @@
 #pragma once
 
-class Animation
+class CAnimation
 {
 public:
     void SetAnimationProperties(const sf::Texture &texture, const size_t framesAmount, const float animationSpeed);

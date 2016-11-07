@@ -2,11 +2,9 @@
 #include "Animation.h"
 #include "SpaceShip.h"
 
-void SpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
+void CSpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, const float screenHeight)
 {
-    // pixels per second (?)
     this->translationalMotionSpeed = 70;
-    // degrees per second (?)
     this->rotationalMotionSpeed = 120;
 
     this->screenHeight = screenHeight;
@@ -22,7 +20,6 @@ void SpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, 
     this->movement = {0, 0};
     this->position = {this->screenWidth / 2, this->screenHeight / 2};
 
-    // Инициализация анимации
     this->animation_stay.SetAnimationProperties(texture, 1, 0);
     this->animation_stay.Initialize(0, 0, 190, 190);
     this->animation_stay.sprite.setScale(0.5, 0.5);
@@ -35,7 +32,7 @@ void SpaceShip::Initialize(const sf::Texture &texture, const float screenWidth, 
     this->animation.sprite.setPosition(position);
 }
 
-void SpaceShip::HandleOutOfScopes()
+void CSpaceShip::HandleOutOfScopes()
 {
     if (position.x > screenWidth)
     {
@@ -56,22 +53,19 @@ void SpaceShip::HandleOutOfScopes()
     }
 }
 
-void SpaceShip::CalculateMovementVector(const float elapsedTime)
+void CSpaceShip::CalculateMovementVector(const float elapsedTime)
 {
-    // Если есть осевая нагрузка на корабль, то он его координаты изменяются в завимимости от направления оси (угла если смотреть сверху)
-    // Иначе корабль медленно замедляется
     if (isThrust)
     {
-        movement.x += cos(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime;
-        movement.y += sin(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime;
+        movement.x += static_cast<float>(cos(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime);
+        movement.y += static_cast<float>(sin(angle * M_PI / 180) * rotationalMotionSpeed * elapsedTime);
     }
     else
     {
-        movement.x *= 0.9;
-        movement.y *= 0.9;
+        movement.x *= 0.9f;
+        movement.y *= 0.9f;
     }
 
-    // Если скорость корабля выше заданной, тогда какой эффект ускорения/замедления
     float currentSpeed = sqrt((movement.x * movement.x) + (movement.y * movement.y));
 
     float maxSpeed = 15;
@@ -83,7 +77,7 @@ void SpaceShip::CalculateMovementVector(const float elapsedTime)
     }
 }
 
-void SpaceShip::HandleKeyPress(const float elapsedTime)
+void CSpaceShip::HandleKeyPress(const float elapsedTime)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
     {
@@ -107,7 +101,7 @@ void SpaceShip::HandleKeyPress(const float elapsedTime)
     }
 }
 
-void SpaceShip::Update(const float elapsedTime)
+void CSpaceShip::Update(const float elapsedTime)
 {
     HandleKeyPress(elapsedTime);
 

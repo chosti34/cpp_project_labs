@@ -2,15 +2,14 @@
 #include "Animation.h"
 #include "Bullet.h"
 
-Bullet::Bullet()
+CBullet::CBullet()
 {
-    // pixels per second
     this->speed = 1200;
 
     this->radius = 5;
 }
 
-void Bullet::Initialize(const sf::Texture &texture, const float angle, const sf::Vector2f &shipPosition, const float screenWidth, const float screenHeight)
+void CBullet::Initialize(const sf::Texture &texture, const float angle, const sf::Vector2f &shipPosition, const float screenWidth, const float screenHeight)
 {
     this->isAlive = true;
     this->angle = angle;
@@ -25,7 +24,7 @@ void Bullet::Initialize(const sf::Texture &texture, const float angle, const sf:
     this->position = shipPosition;
 }
 
-void Bullet::HandleOutOfScopes()
+void CBullet::HandleOutOfScopes()
 {
     if ((position.x > screenWidth) || (position.x < 0))
     {
@@ -38,14 +37,14 @@ void Bullet::HandleOutOfScopes()
     }
 }
 
-void Bullet::Update(const float elapsedTime)
+void CBullet::Update(const float elapsedTime)
 {
     animation.Update(elapsedTime);
 
     HandleOutOfScopes();
 
-    movement.x = cos(angle * M_PI / 180);
-    movement.y = sin(angle * M_PI / 180);
+    movement.x = static_cast<float>(cos(angle * M_PI / 180));
+    movement.y = static_cast<float>(sin(angle * M_PI / 180));
 
     position.x += movement.x * speed * elapsedTime;
     position.y += movement.y * speed * elapsedTime;

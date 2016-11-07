@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "RectangleCollection.h"
 
-CRectangleCollection::CRectangleCollection() {} // no constructor
-CRectangleCollection::~CRectangleCollection() {} // no destructor
-
 void CRectangleCollection::Initialize()
 {
     for (size_t i = 0; i < m_collection.size(); ++i)
@@ -102,13 +99,12 @@ void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float
     }
     else if (m_state == State::LEFT_ASYNC)
     {
-        if (static_cast<int>(m_collection[m_index].getPosition().y) > static_cast<int>(m_collection[0].getPosition().y))
+        if (m_collection[m_index].getPosition().y >= m_collection[0].getPosition().y)
         {
             m_collection[m_index].setPosition(m_collection[m_index].getPosition() + movement * m_speedMovement * elapsedTime);
         }
         else
         {
-            m_collection[m_index].setPosition(m_collection[0].getPosition().x - (m_index * (m_width + m_rectangleDistance)), m_collection[0].getPosition().y);
             ++m_index;
         }
 
@@ -123,7 +119,7 @@ void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float
 void CRectangleCollection::UpdateState(const sf::Vector2f &screenSize)
 {
     if ((m_collection[0].getPosition().y + m_topOffset + m_collection[0].getOrigin().y >= screenSize.y) &&
-        (m_collection[0].getPosition().x - m_leftOffset - m_collection[0].getOrigin().x <= DBL_EPSILON))
+        (m_state == State::DOWN))
     {
         m_state = State::RIGHT;
     }

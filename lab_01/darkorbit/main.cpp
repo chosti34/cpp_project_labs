@@ -7,13 +7,13 @@
 
 int main()
 {
-    srand(time(NULL));
+    srand(static_cast<size_t>(time(NULL)));
 
-    const size_t screenWidth = 1280;
-    const size_t screenHeight = 720;
+    const float screenWidth = 1280;
+    const float screenHeight = 720;
     const std::string gameTitle = "DarkOrbit";
 
-    GameController controller(screenWidth, screenHeight, gameTitle);
+    CGameController controller(screenWidth, screenHeight, gameTitle);
 
     controller.Initialize();
     controller.EnterMainLoop();

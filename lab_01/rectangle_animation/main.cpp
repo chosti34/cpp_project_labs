@@ -46,7 +46,7 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1280, 720), "Rectangle Animation", sf::Style::Close, settings);
     sf::Clock clock;
 
-    window.setFramerateLimit(60);
+    window.setFramerateLimit(500);
 
     CRectangleCollection collection;
     collection.Initialize();

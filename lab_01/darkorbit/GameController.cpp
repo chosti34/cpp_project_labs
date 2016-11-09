@@ -71,7 +71,12 @@ void CGameController::InitializeAsteroids()
     {
         CAsteroid *asteroid = new CAsteroid;
         asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
-        asteroids.push_back(asteroid);
+        asteroid->radius += 900;
+        if (!IsShipCollidesWithAsteroid(spaceShip, *asteroid))
+        {
+            asteroids.push_back(asteroid);
+            asteroid->radius -= 900;
+        }
     }
 }
 
@@ -84,11 +89,11 @@ void CGameController::HandleEvents()
         {
             window.close();
         }
-        if ((spaceShip.isAlive) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
+        else if ((spaceShip.isAlive) && (m_isPlaying) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
         {
             ShootBullet();
         }
-        if ((!m_isPlaying) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
+        else if ((!m_isPlaying) && (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)))
         {
             InitializeShip();
             InitializeAsteroids();
@@ -119,6 +124,7 @@ void CGameController::Update()
 
 void CGameController::UpdateBullets(const float elapsedTime)
 {
+    // TODO: use remove_if + erase
     for (auto bullet = bullets.begin(); bullet != bullets.end();)
     {
         CBullet *bulletPtr = *bullet;
@@ -183,7 +189,12 @@ void CGameController::UpdateAsteroids(const float elapsedTime)
     {
         CAsteroid *asteroid = new CAsteroid;
         asteroid->Initialize(asteroidTexture, screenWidth, screenHeight);
-        asteroids.push_back(asteroid);
+        asteroid->radius += 200;
+        if (!IsShipCollidesWithAsteroid(spaceShip, *asteroid))
+        {
+            asteroids.push_back(asteroid);
+            asteroid->radius -= 200;
+        }
     }
 }
 

@@ -23,9 +23,11 @@ private:
     sf::RenderWindow window;
     sf::Clock clock;
     CSpaceShip spaceShip;
+    // TODO: use vector
     std::list<CAsteroid*> asteroids;
     std::list<CBullet*> bullets;
     bool m_isPlaying = true;
+
     void HandleEvents();
     void Update();
     void Render();

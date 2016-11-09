@@ -72,8 +72,7 @@ void CSpaceShip::CalculateMovementVector(const float elapsedTime)
 
     if (currentSpeed > maxSpeed)
     {
-        movement.x *= maxSpeed / currentSpeed;
-        movement.y *= maxSpeed / currentSpeed;
+        movement *= maxSpeed / currentSpeed;
     }
 }
 

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "RectangleCollection.h"
 
+// ‘ункци€ котора€ переводит из пол€рных координат в декартовы
+
 void CRectangleCollection::Initialize()
 {
     for (size_t i = 0; i < m_collection.size(); ++i)
@@ -73,6 +75,12 @@ void CRectangleCollection::UpdateMovementVector(const float elapsedTime)
 
 void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime, const sf::Vector2f &scopes)
 {
+    // TODO: use switch-case
+   /* switch (m_state)
+    {
+        case State::DOWN:
+    }*/
+
     if ((m_state == State::DOWN) || (m_state == State::UP) || (m_state == State::RIGHT) || (m_state == State::LEFT_DIAG) || (m_state == State::LEFT))
     {
         for (size_t i = 0; i < m_collection.size(); ++i)
@@ -85,8 +93,8 @@ void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float
     {
         for (size_t i = 0; i < m_collection.size(); ++i)
         {
-            float dx = m_collection[m_collection.size() - 1].getPosition().x - m_collection[i].getPosition().x;
-            float dy = m_collection[m_collection.size() - 1].getPosition().y - m_collection[i].getPosition().y;
+            float dx = m_collection.back().getPosition().x - m_collection[i].getPosition().x;
+            float dy = m_collection.back().getPosition().y - m_collection[i].getPosition().y;
             float radius = hypot(dx, dy);
 
             m_collection[i].setPosition(
@@ -105,6 +113,7 @@ void CRectangleCollection::ChangeCoordinates(sf::Vector2f &movement, const float
         }
         else
         {
+            m_collection[m_index].setPosition(m_collection[m_index].getPosition().x, m_collection[0].getPosition().y);
             ++m_index;
         }
 
@@ -283,8 +292,8 @@ void CRectangleCollection::UpdateSize(const float elapsedTime)
 
 void CRectangleCollection::Draw(sf::RenderWindow &window)
 {
-    for (size_t i = 0; i < m_collection.max_size(); ++i)
+    for (const auto &item : m_collection)
     {
-        window.draw(m_collection[i]);
+        window.draw(item);
     }
 }

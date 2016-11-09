@@ -4,6 +4,7 @@
 
 CBullet::CBullet()
 {
+// TODO: remove this
     this->speed = 1200;
 
     this->radius = 5;
@@ -11,6 +12,7 @@ CBullet::CBullet()
 
 void CBullet::Initialize(const sf::Texture &texture, const float angle, const sf::Vector2f &shipPosition, const float screenWidth, const float screenHeight)
 {
+    // TODO: remove this
     this->isAlive = true;
     this->angle = angle;
 
@@ -46,8 +48,7 @@ void CBullet::Update(const float elapsedTime)
     movement.x = static_cast<float>(cos(angle * M_PI / 180));
     movement.y = static_cast<float>(sin(angle * M_PI / 180));
 
-    position.x += movement.x * speed * elapsedTime;
-    position.y += movement.y * speed * elapsedTime;
+    position += movement * speed * elapsedTime;
 
     animation.sprite.setPosition(position);
 }

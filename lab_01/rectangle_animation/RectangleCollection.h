@@ -17,8 +17,9 @@ public:
     void Initialize();
     void Draw(sf::RenderWindow &window);
     void Update(const float elapsedTime, const sf::Vector2f &screenSize);
+
 private:
-    std::array<sf::RectangleShape, 8> m_collection;
+    std::array<sf::RectangleShape, 10> m_collection;
     float m_width = 60;
     float m_height = 60;
     const float m_leftOffset = 10;
@@ -36,6 +37,7 @@ private:
     bool m_wasAsync = false;
     bool m_isColorReachedMax = false;
     bool m_isSizeReachedMax = false;
+
     void ChangeCoordinates(sf::Vector2f &movement, const float elapsedTime, const sf::Vector2f &scopes);
     void UpdateState(const sf::Vector2f &screenSize);
     void UpdateMovementVector(const float elapsedTime);
